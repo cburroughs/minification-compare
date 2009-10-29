@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
 # need to re-think exactly what I want this to do ..
+# - 2 programs --> bunch of files (most important)
 # - bunch of programs --> one file (or bunch?)
-# - 2 programs --> bunch of files
 
+
+# todo: ability to save output file(s) to directory
 
 import glob
 import gzip
@@ -15,42 +17,51 @@ import sys
 import tempfile
 
 import path
-# external dep, would like to eventuall remove
+# external dep, would like to eventually remove
 from paver.easy import sh
 
 
+# todo: move to external file
 CSS_CMDS = {
     'yui-compressor-2.4.2' :
-    {'cmd': 'java -jar minify-programs/yuicompressor-2.4.2.jar --type css -o OUTFILE INFILE'},
-    'CssCompressor.jar':
-        {'cmd': 'java -jar minify-programs/CssCompressor.jar -o OUTFILE INFILE'}
+        {'cmd': 'java -jar minify-programs/yuicompressor-2.4.2.jar --type css -o OUTFILE INFILE'},
+#    'CssCompressor.jar':
+#        {'cmd': 'java -jar minify-programs/CssCompressor.jar -o OUTFILE INFILE'},
+    'csstidy' :
+        {'cmd': './minify-programs/csstidy   INFILE --optimise_shorthands=2 OUTFILE'}
+
     }
 
 
 JS_CMDS = {
-    'yui-compressor':
-        {'cmd': 'java -jar minify-programs/yuicompressor-2.4.2.jar --type js -o OUTFILE INFILE'}
+    'yui-compressor-2.4.2' :
+        {'cmd': 'java -jar minify-programs/yuicompressor-2.4.2.jar --type js -o OUTFILE INFILE'},
     }
 
 
+# todo: decide on best way to compare
 def percent_difference(x1, x2):
+    """ http://en.wikipedia.org/wiki/Percent_difference """
     return abs(1.0 * x1 - x2) / (1.0 * (x1 + x2) / 2)
 
 
 def percent_change(x_old, x_new):
+    """ http://en.wikipedia.org/wiki/Percentage_change """
     return (1.0 * x_new - x_old) / x_old
-
-
-# os.stat(path) . st_size
-def file_stsz(file_path):
-    return os.stat(file_path).st_size
 
 
 def rel_size(old, new):
     return 1 - (1.0 * new) / old
 
 
+# os.stat(path) . st_size
+def file_stsz(file_path):
+    """ How many bytes is the file on the given path?"""
+    return os.stat(file_path).st_size
+
+
 def gzipped_file_size(file_name, level=6):
+    """ How big is a file when it is gzipped?"""
     file_obj = open(file_name)
     gzipped_file = gzip.open(tempfile.NamedTemporaryFile().name, 'wb',
                             compresslevel=level)
@@ -119,7 +130,7 @@ def parse_argv(argv):
     parser.add_option('--mini-b', dest='challenge_mini', default=None,
                   help='')
     # todo: n way compare
-    parser.add_option('--type', dest='file_type', default=None,
+    parser.add_option('--type', dest='file_type', default='js',
                   help='css or js?')
 
     #parser.add_option('--try-chain', dest='out_format', default=False,
@@ -149,10 +160,17 @@ def main(argv):
 
     # todo: don't pass raw directories
     for file_name in glob.glob(in_file_glob):
+        print file_name
         (cmd_list, in_file_size, in_file_size_gz, out_file_size,
          out_file_size_gz) = minify_file(cmds[opts.base_mini], file_name)
         print_text(cmd_list, in_file_size, in_file_size_gz, out_file_size,
                    out_file_size_gz)
+        print '--------------------'
+        (cmd_list, in_file_size, in_file_size_gz, out_file_size,
+         out_file_size_gz) = minify_file(cmds[opts.challenge_mini], file_name)
+        print_text(cmd_list, in_file_size, in_file_size_gz, out_file_size,
+                   out_file_size_gz)
+
     # todo: mean comparision, total comparison
 
 
