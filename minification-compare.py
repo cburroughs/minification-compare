@@ -39,6 +39,7 @@ JS_CMDS = {
     }
 
 
+
 # todo: decide on best way to compare
 def percent_difference(x1, x2):
     """ http://en.wikipedia.org/wiki/Percent_difference """
@@ -52,6 +53,26 @@ def percent_change(x_old, x_new):
 
 def rel_size(old, new):
     return 1 - (1.0 * new) / old
+
+
+class MiniStats(object):
+    """ Stats for what happens on one run of a minification program"""
+    #in_file_size, in_file_size_gz, out_file_size,
+    #out_file_size_gz)
+    def __init__(self, in_size=0, in_size_gz=0,
+                 out_size=None, out_size_gz=None):
+        self.in_size = in_size
+        self.in_size_gz = in_size_gz
+        self.out_size = in_size if out_size is None else out_size
+        self.out_size_gz = in_size if out_size_gz is None else out_size_gz
+
+    def change(self, cmp_func=percent_change, gz=False):
+        vanilla_change = cmp_func(self.in_size, self.out_size)
+        gz_change = cmp_func(self.in_size_gz, self.out_size_gz)
+        if gz:
+            return gz_change
+        else:
+            return vanilla_change
 
 
 # os.stat(path) . st_size
@@ -77,12 +98,14 @@ def minify_file(cmd_info, orig_file):
     #pin_file = path.path(os.getcwd() + in_file)
     pin_file = in_file
     out_file = path.path(pin_file)
-    ref_cout_delete = [] # all will be deleted when function ends
+    ref_cout_delete = [] # all will be deleted when function ends, but
+                         # we need to hang on to them until then
     #out_file = tempfile.NamedTemporaryFile(delete=True)
-    # just css for now
     pin_file = path.path(out_file.name)
     out_file = tempfile.NamedTemporaryFile(delete=True)
+    #debug:
     print in_file, pin_file, pin_file.abspath()
+    # todo: replace with template?
     cmd = cmd_info['cmd'].replace('INFILE', in_file).replace('OUTFILE', out_file.name)
     #print cmd
     #o = check_output(cmd.split(' '))
@@ -94,26 +117,23 @@ def minify_file(cmd_info, orig_file):
     in_file_size_gz = gzipped_file_size(orig_file)
     out_file_size_gz = gzipped_file_size(out_file.name)
     out_file_size = os.path.getsize(out_file.name)
-    #print out_file_size
-    #in_file_size_gz = None
-    #out_file_size_gz = None
-    # todo: define classes or at least dicts for passing all this around
-    return (cmd_info, in_file_size, in_file_size_gz, out_file_size,
-            out_file_size_gz)
+    res_stats = MiniStats(in_size=in_file_size, in_size_gz=in_file_size_gz,
+                          out_size=out_file_size, out_size_gz=out_file_size_gz)
+
+    return (cmd_info, res_stats)
 
 
-def print_text(cmd_list, in_file_size, in_file_size_gz, out_file_size,
-                out_file_size_gz):
+def print_text(cmd_list, res_stats):
     if len(cmd_list) == 0:
         return
     pprint.pprint(cmd_list)
-    print ("in size: %s | out_size: %s | percent-change: %s" %
-           (in_file_size, out_file_size,
-            percent_change(in_file_size, out_file_size)))
-    print ("in size gz: %s | out_size gz: %s | percent-change gz: %s" %
-           (in_file_size_gz, out_file_size_gz,
-            percent_change(in_file_size_gz, out_file_size_gz)))
 
+    print ("in size: %s | out_size: %s | percent-change: %s" %
+           (res_stats.in_size, res_stats.out_size,
+            res_stats.change()))
+    print ("in size gz: %s | out_size gz: %s | percent-change gz: %s" %
+           (res_stats.in_size_gz, res_stats.out_size_gz,
+            res_stats.change(gz=True)))
     print '----------'
 
 
@@ -161,15 +181,12 @@ def main(argv):
     # todo: don't pass raw directories
     for file_name in glob.glob(in_file_glob):
         print file_name
-        (cmd_list, in_file_size, in_file_size_gz, out_file_size,
-         out_file_size_gz) = minify_file(cmds[opts.base_mini], file_name)
-        print_text(cmd_list, in_file_size, in_file_size_gz, out_file_size,
-                   out_file_size_gz)
+        (cmd_list, res_stats) = minify_file(cmds[opts.base_mini], file_name)
+        print_text(cmd_list, res_stats)
         print '--------------------'
-        (cmd_list, in_file_size, in_file_size_gz, out_file_size,
-         out_file_size_gz) = minify_file(cmds[opts.challenge_mini], file_name)
-        print_text(cmd_list, in_file_size, in_file_size_gz, out_file_size,
-                   out_file_size_gz)
+        (cmd_list, res_stats) = minify_file(cmds[opts.challenge_mini],
+                                            file_name)
+        print_text(cmd_list, res_stats)
 
     # todo: mean comparision, total comparison
 
