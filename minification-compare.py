@@ -4,7 +4,7 @@
 # - 2 programs --> bunch of files (most important)
 # - bunch of programs --> one file (or bunch?)
 
-
+# todo: clean output a lot, debug comments
 # todo: ability to save output file(s) to directory
 
 import glob
@@ -25,6 +25,8 @@ from paver.easy import sh
 CSS_CMDS = {
     'yui-compressor-2.4.2' :
         {'cmd': 'java -jar minify-programs/yuicompressor-2.4.2.jar --type css -o OUTFILE INFILE'},
+    'yui-compressor-2.4.3-csb.0' :
+        {'cmd': 'java -jar minify-programs/yuicompressor-2.4.3-csb.0.jar --type css -o OUTFILE INFILE'},
 #    'CssCompressor.jar':
 #        {'cmd': 'java -jar minify-programs/CssCompressor.jar -o OUTFILE INFILE'},
     'csstidy' :
@@ -36,6 +38,8 @@ CSS_CMDS = {
 JS_CMDS = {
     'yui-compressor-2.4.2' :
         {'cmd': 'java -jar minify-programs/yuicompressor-2.4.2.jar --type js -o OUTFILE INFILE'},
+    'yui-compressor-2.4.3-csb.0' :
+        {'cmd': 'java -jar minify-programs/yuicompressor-2.4.3-csb.0.jar --type js -o OUTFILE INFILE'},
     }
 
 
@@ -73,6 +77,43 @@ class MiniStats(object):
             return gz_change
         else:
             return vanilla_change
+
+
+class AggregateStats(object):
+    def __init__(self, ministats=None):
+        self.ministats = [] if ministats is None else ministats
+
+    def total_in_size(self, gz=False):
+        if gz:
+            size_fn = lambda ms: ms.in_size_gz
+        else:
+            size_fn = lambda ms: ms.in_size
+        return sum(map(size_fn, self.ministats))
+
+    # todo: memorize, make property?
+    def total_out_size(self, gz=False):
+        if gz:
+            size_fn = lambda ms: ms.out_size_gz
+        else:
+            size_fn = lambda ms: ms.out_size
+        return sum(map(size_fn, self.ministats))
+
+    def abs_size_diff(self, gz=False):
+        if gz:
+            return abs(self.total_in_size(gz=True) - self.total_out_size(gz=True))
+        else:
+            return abs(self.total_in_size() - self.total_out_size())
+
+    def change(self, cmp_func=percent_change, gz=False):
+        vanilla_change = cmp_func(self.total_in_size(), self.total_out_size())
+        gz_change = cmp_func(self.total_in_size(gz=True), self.total_out_size(gz=True))
+        if gz:
+            return gz_change
+        else:
+            return vanilla_change
+
+    # todo: mean, media, other stats?
+
 
 
 # os.stat(path) . st_size
@@ -179,16 +220,28 @@ def main(argv):
     cmds = CSS_CMDS if opts.file_type == 'css' else JS_CMDS
 
     # todo: don't pass raw directories
+    agg_stats_base = AggregateStats()
+    agg_stats_challenger = AggregateStats()
     for file_name in glob.glob(in_file_glob):
         print file_name
         (cmd_list, res_stats) = minify_file(cmds[opts.base_mini], file_name)
+        agg_stats_base.ministats.append(res_stats)
         print_text(cmd_list, res_stats)
         print '--------------------'
         (cmd_list, res_stats) = minify_file(cmds[opts.challenge_mini],
                                             file_name)
+        agg_stats_challenger.ministats.append(res_stats)
         print_text(cmd_list, res_stats)
 
-    # todo: mean comparision, total comparison
+    print '----- TOTALS -----'
+    print 'base: ', opts.base_mini
+    print ('abs diff:', str(agg_stats_base.abs_size_diff()), 'gz: ',
+           str(agg_stats_base.abs_size_diff(gz=True)))
+    print ('% change: ', agg_stats_base.change(), 'gz: ', agg_stats_base.change(gz=True))
+    print 'challenger:', opts.challenge_mini
+    print ('abs diff:', str(agg_stats_challenger.abs_size_diff()), 'gz: ',
+           str(agg_stats_challenger.abs_size_diff(gz=True)))
+    print ('% change: ', agg_stats_challenger.change(), 'gz: ', agg_stats_challenger.change(gz=True))
 
 
 if __name__ == '__main__':
