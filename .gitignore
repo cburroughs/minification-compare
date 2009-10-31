@@ -1,2 +1,3 @@
 *.pyc
 private-files/*
+minify-programs/*
