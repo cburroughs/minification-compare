@@ -1,0 +1,67 @@
+
+
+----------
+
+
+
+
+
+
+
+### Includes Sample code
+The following bodies of code are included unmodified to form a testing
+corpus.  Suggestions for other idiomatic samples welcome.
+
+#### CSS
+##### yui3
+ - Homepage: http://github.com/yui/yui3
+ - License: BSD
+
+
+##### 960
+ - Homepage: http://960.gs/
+ - License: GPL/MIT
+
+
+##### Blueprint CSS
+ - Homepage: http://www.blueprintcss.org/
+ - License: GPL/MIT
+
+
+#### JavsScript
+
+##### Dojo Toolkit
+ - Homepage: http://www.dojotoolkit.org/
+ - License: BSD License and the Academic Free License.
+
+##### flot
+ - Homepage: http://code.google.com/p/flot/
+ - License: MIT
+
+##### jQuery
+ - Homepage: http://jquery.com/
+ - License: MIT and GPL licenses.
+
+##### jQuery UI
+ - Homepage: http://jqueryui.com/
+ - License: MIT and GPL licenses.
+
+#### MooTools
+ - Homepage: http://mootools.net
+ - License:  MIT-style license.
+
+##### Processing.js
+ - Homepage: http://processingjs.org/
+ - License: MIT
+
+##### Prototype
+ - Homepage: http://www.prototypejs.org/
+ - License: MIT
+
+##### SWFObject
+ - Homepage: http://code.google.com/p/swfobject/
+ - License: MIT
+
+##### yui3
+ - Homepage: http://github.com/yui/yui3
+ - License: BSD

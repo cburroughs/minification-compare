@@ -40,6 +40,8 @@ JS_CMDS = {
         {'cmd': 'java -jar minify-programs/yuicompressor-2.4.2.jar --type js -o OUTFILE INFILE'},
     'yui-compressor-2.4.3-csb.0' :
         {'cmd': 'java -jar minify-programs/yuicompressor-2.4.3-csb.0.jar --type js -o OUTFILE INFILE'},
+    'cs_comp' :
+        {'cmd': './minify-programs/cs_comp INFILE OUTFILE'}
     }
 
 
