@@ -16,34 +16,11 @@ import pprint
 import sys
 import tempfile
 
-import path
-# external dep, would like to eventually remove
+import yaml
+# external dep that I would like to eventually remove
 from paver.easy import sh
 
-
-# todo: move to external file
-CSS_CMDS = {
-    'yui-compressor-2.4.2' :
-        {'cmd': 'java -jar minify-programs/yuicompressor-2.4.2.jar --type css -o OUTFILE INFILE'},
-    'yui-compressor-2.4.3-csb.0' :
-        {'cmd': 'java -jar minify-programs/yuicompressor-2.4.3-csb.0.jar --type css -o OUTFILE INFILE'},
-#    'CssCompressor.jar':
-#        {'cmd': 'java -jar minify-programs/CssCompressor.jar -o OUTFILE INFILE'},
-    'csstidy' :
-        {'cmd': './minify-programs/csstidy   INFILE --optimise_shorthands=2 OUTFILE'}
-
-    }
-
-
-JS_CMDS = {
-    'yui-compressor-2.4.2' :
-        {'cmd': 'java -jar minify-programs/yuicompressor-2.4.2.jar --type js -o OUTFILE INFILE'},
-    'yui-compressor-2.4.3-csb.0' :
-        {'cmd': 'java -jar minify-programs/yuicompressor-2.4.3-csb.0.jar --type js -o OUTFILE INFILE'},
-    'cs_comp' :
-        {'cmd': './minify-programs/cs_comp INFILE OUTFILE'}
-    }
-
+import path
 
 
 # todo: decide on best way to compare
@@ -219,7 +196,9 @@ def main(argv):
     (opts, args) = parse_argv(argv)
     in_file_glob = opts.in_file_glob
 
-    cmds = CSS_CMDS if opts.file_type == 'css' else JS_CMDS
+    with open('conf/cmds.sample.yaml') as cmds_file:
+        cmds = yaml.load(cmds_file.read())
+    cmds = cmds['css_cmds'] if opts.file_type == 'css' else cmds['js_cmds']
 
     # todo: don't pass raw directories
     agg_stats_base = AggregateStats()

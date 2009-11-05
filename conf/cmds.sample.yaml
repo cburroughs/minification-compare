@@ -1,0 +1,23 @@
+# todo: Move to real string templates
+css_cmds: 
+  'yui-compressor-2.4.2' :
+    {'cmd': 'java -jar minify-programs/yuicompressor-2.4.2.jar --type css -o OUTFILE INFILE'}
+  'yui-compressor-2.4.3-csb.0' :
+    {'cmd': 'java -jar minify-programs/yuicompressor-2.4.3-csb.0.jar --type css -o OUTFILE INFILE'}
+    # todo: jargs problem?
+    #    'CssCompressor.jar':
+    #        {'cmd': 'java -jar minify-programs/CssCompressor.jar -o OUTFILE INFILE'},
+  'csstidy' :
+    {'cmd': './minify-programs/csstidy   INFILE --optimise_shorthands=2 OUTFILE'}
+
+js_cmds:
+  'yui-compressor-2.4.2' :
+    {'cmd': 'java -jar minify-programs/yuicompressor-2.4.2.jar --type js -o OUTFILE INFILE'}
+  'yui-compressor-2.4.3' :
+    {'cmd': 'java -jar minify-programs/yuicompressor-2.4.3.jar --type js -o OUTFILE INFILE'}
+  'yui-compressor-2.4.3-zimbra' :
+    {'cmd': 'java -jar minify-programs/yuicompressor-2.4.3-zimbra.jar --type js -o OUTFILE INFILE'}
+  'yui-compressor-2.4.3-csb.0' :
+    {'cmd': 'java -jar minify-programs/yuicompressor-2.4.3-csb.0.jar --type js -o OUTFILE INFILE'}
+  'cs_comp' :
+    {'cmd': './minify-programs/cs_comp INFILE OUTFILE'}
