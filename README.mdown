@@ -1,27 +1,56 @@
+Minification Compare
+==========
+
+### Hey, what's this?
+
+A minifier transforms something (javascript or CSS) and transforms it
+into an into an equivalent form that takes up fewer bytes.  Unlike a
+compression algorithm, it is not necessary to reverse the
+transformation before use.  The simplest minification is removing
+white space.  Under the hood a minification program might be anything
+from a scrappy gang of regular expression to a source to source
+compiler.  Right now this is a program for comparing two minification
+programs.  There are already sites that will perform an n-way
+comparison with pretty tables.  The original use case here was helping with
+developing minifiers.
+
+No attempt is made to determine if the transformations are correct.
+Thus the more difficult but infinitely more important question of
+correctness is not answered by this program.
 
 
-----------
+### Use
+
+Type --help.  There are some python package
+dependencies.  The number of them may be reduced in the future.  I
+have only tested with python2.6 so far.
+
+### Interpreting results
+
+There are two comparisons of interest to most people.: bytes -->
+minified bytes, and gzip (zlib) -6 bytes --> minified gzip (zlib) -6
+bytes. For HTTP content delivery, it is the gzipped size comparison
+that matters unless you users primarily use some *very* old user
+agents.  If you have a use for magnifiers other than HTTP content
+delivery you should tell me about it because that sounds interesting.
+
+Note again that smaller is not always better.  Correctness (which
+unfortunately may include preserving wacky comments that cause IE6 to
+behave differently) is more important, and may result in larger files.
 
 
-
-
-
-
-
-### Includes Sample code
+### Included Sample code
 The following bodies of code are included unmodified to form a testing
-corpus.  Suggestions for other idiomatic samples welcome.
+corpus.  Suggestions for other idiomatic samples are welcome.
 
 #### CSS
 ##### yui3
  - Homepage: http://github.com/yui/yui3
  - License: BSD
 
-
 ##### 960
  - Homepage: http://960.gs/
  - License: GPL/MIT
-
 
 ##### Blueprint CSS
  - Homepage: http://www.blueprintcss.org/

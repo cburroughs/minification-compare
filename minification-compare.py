@@ -164,6 +164,9 @@ def parse_argv(argv):
 
     parser.add_option('--in-file-glob', dest='in_file_glob', default=None,
                       help='file we are trying to minify')
+    parser.add_option('--conf', dest='conf_file', 
+                      default='conf/cmds.sample.yaml',
+                      help='config file for minification programs')
     # todo: better as args?
     parser.add_option('--mini-a', dest='base_mini', default=None,
                   help='')
@@ -172,6 +175,14 @@ def parse_argv(argv):
     # todo: n way compare
     parser.add_option('--type', dest='file_type', default='js',
                   help='css or js?')
+    # todo: these options!
+    #parser.add_option('--verbose', dest='verbose', action='store_true'
+    #                  default=True, help='be verbose')
+    #parser.add_option('--quiet', dest='verbose', action='store_false'
+    #                  default=True, help='do not be verbose')
+    #parser.add_option('--debug', dest='debug', action='store_false'
+    #                  default=True, help='do not be verbose')
+
 
     #parser.add_option('--try-chain', dest='out_format', default=False,
     #                  action='store_true',
@@ -196,7 +207,7 @@ def main(argv):
     (opts, args) = parse_argv(argv)
     in_file_glob = opts.in_file_glob
 
-    with open('conf/cmds.sample.yaml') as cmds_file:
+    with open(opts.conf_file) as cmds_file:
         cmds = yaml.load(cmds_file.read())
     cmds = cmds['css_cmds'] if opts.file_type == 'css' else cmds['js_cmds']
 
