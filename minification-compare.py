@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+""" This is a program for comparing minification programs."""
+
 
 # need to re-think exactly what I want this to do ..
 # - 2 programs --> bunch of files (most important)
@@ -10,7 +12,6 @@
 import glob
 import gzip
 import itertools
-import json
 import os
 import pprint
 import sys
@@ -40,6 +41,7 @@ def rel_size(old, new):
 
 class MiniStats(object):
     """ Stats for what happens on one run of a minification program"""
+
     #in_file_size, in_file_size_gz, out_file_size,
     #out_file_size_gz)
     def __init__(self, in_size=0, in_size_gz=0,
@@ -59,6 +61,8 @@ class MiniStats(object):
 
 
 class AggregateStats(object):
+    """ Aggregate statistics about a bunch of MiniStats"""
+
     def __init__(self, ministats=None):
         self.ministats = [] if ministats is None else ministats
 
@@ -79,20 +83,21 @@ class AggregateStats(object):
 
     def abs_size_diff(self, gz=False):
         if gz:
-            return abs(self.total_in_size(gz=True) - self.total_out_size(gz=True))
+            return abs(self.total_in_size(gz=True) -
+                       self.total_out_size(gz=True))
         else:
             return abs(self.total_in_size() - self.total_out_size())
 
     def change(self, cmp_func=percent_change, gz=False):
         vanilla_change = cmp_func(self.total_in_size(), self.total_out_size())
-        gz_change = cmp_func(self.total_in_size(gz=True), self.total_out_size(gz=True))
+        gz_change = cmp_func(self.total_in_size(gz=True),
+                             self.total_out_size(gz=True))
         if gz:
             return gz_change
         else:
             return vanilla_change
 
     # todo: mean, media, other stats?
-
 
 
 # os.stat(path) . st_size
@@ -128,8 +133,7 @@ def minify_file(cmd_info, orig_file):
     # todo: replace with template?
     cmd = cmd_info['cmd'].replace('INFILE', in_file).replace('OUTFILE', out_file.name)
     #print cmd
-    #o = check_output(cmd.split(' '))
-    o = sh(cmd)
+    output = sh(cmd)
     ref_cout_delete.append(out_file)
 
     in_file_size = file_stsz(orig_file)
@@ -143,7 +147,9 @@ def minify_file(cmd_info, orig_file):
     return (cmd_info, res_stats)
 
 
+# todo: rename?
 def print_text(cmd_list, res_stats):
+    """ Print some useful stuff about the minifcation on each file."""
     if len(cmd_list) == 0:
         return
     pprint.pprint(cmd_list)
@@ -154,7 +160,6 @@ def print_text(cmd_list, res_stats):
     print ("in size gz: %s | out_size gz: %s | percent-change gz: %s" %
            (res_stats.in_size_gz, res_stats.out_size_gz,
             res_stats.change(gz=True)))
-    print '----------'
 
 
 def parse_argv(argv):
@@ -240,11 +245,13 @@ def main(argv):
     print 'base: ', opts.base_mini
     print ('abs diff:', str(agg_stats_base.abs_size_diff()), 'gz: ',
            str(agg_stats_base.abs_size_diff(gz=True)))
-    print ('% change: ', agg_stats_base.change(), 'gz: ', agg_stats_base.change(gz=True))
+    print ('% change: ', agg_stats_base.change(), 'gz: ',
+           agg_stats_base.change(gz=True))
     print 'challenger:', opts.challenge_mini
     print ('abs diff:', str(agg_stats_challenger.abs_size_diff()), 'gz: ',
            str(agg_stats_challenger.abs_size_diff(gz=True)))
-    print ('% change: ', agg_stats_challenger.change(), 'gz: ', agg_stats_challenger.change(gz=True))
+    print ('% change: ', agg_stats_challenger.change(), 'gz: ',
+           agg_stats_challenger.change(gz=True))
 
     # State the obvious.
     if (agg_stats_base.abs_size_diff(gz=True) >
