@@ -2,22 +2,19 @@
 css_cmds: 
   'yui-compressor-2.4.2' :
     {'cmd': 'java -jar programs/yuicompressor-2.4.2.jar --type css -o OUTFILE INFILE'}
-  'yui-compressor-2.4.3-csb.0' :
-    {'cmd': 'java -jar programs/yuicompressor-2.4.3-csb.0.jar --type css -o OUTFILE INFILE'}
     # todo: jargs problem?
     #    'CssCompressor.jar':
     #        {'cmd': 'java -jar programs/CssCompressor.jar -o OUTFILE INFILE'},
   'csstidy' :
     {'cmd': './programs/csstidy   INFILE --optimise_shorthands=2 OUTFILE'}
 
+# todo: http://stephenwalther.com/blog/archive/2009/10/16/using-the-new-microsoft-ajax-minifier.aspx
 js_cmds:
   'yui-compressor-2.4.2' :
     {'cmd': 'java -jar programs/yuicompressor-2.4.2.jar --type js -o OUTFILE INFILE'}
-  'yui-compressor-2.4.3' :
-    {'cmd': 'java -jar programs/yuicompressor-2.4.3.jar --type js -o OUTFILE INFILE'}
-  'yui-compressor-2.4.3-zimbra' :
-    {'cmd': 'java -jar programs/yuicompressor-2.4.3-zimbra.jar --type js -o OUTFILE INFILE'}
-  'yui-compressor-2.4.3-csb.0' :
-    {'cmd': 'java -jar programs/yuicompressor-2.4.3-csb.0.jar --type js -o OUTFILE INFILE'}
-  'cs_comp' :
-    {'cmd': './programs/cs_comp INFILE OUTFILE'}
+  'closure-compiler':
+    {'cmd': 'java -jar programs/compiler.jar --js INFILE --js_output_file OUTFILE'}
+  'closure-compiler-advanced':
+    {'cmd': 'java -jar programs/compiler.jar --compilation_level=ADVANCED_OPTIMIZATIONS --js INFILE --js_output_file OUTFILE'}
+
+

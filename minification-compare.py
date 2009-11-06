@@ -165,7 +165,7 @@ def parse_argv(argv):
     parser.add_option('--in-file-glob', dest='in_file_glob', default=None,
                       help='file we are trying to minify')
     parser.add_option('--conf', dest='conf_file', 
-                      default='conf/cmds.sample.yaml',
+                      default=None,
                       help='config file for minification programs')
     # todo: better as args?
     parser.add_option('--mini-a', dest='base_mini', default=None,
@@ -206,6 +206,14 @@ def parse_argv(argv):
 def main(argv):
     (opts, args) = parse_argv(argv)
     in_file_glob = opts.in_file_glob
+
+    if opts.conf_file is None:
+        private = 'conf/cmds.private.yaml'
+        sample = 'conf/cmds.sample.yaml'
+        if os.path.exists(private):
+            opts.conf_file = private
+        else:
+            opts.conf_file = sample
 
     with open(opts.conf_file) as cmds_file:
         cmds = yaml.load(cmds_file.read())
