@@ -124,7 +124,7 @@ def minify_file(cmd_info, orig_file):
     pin_file = path.path(out_file.name)
     out_file = tempfile.NamedTemporaryFile(delete=True)
     #debug:
-    print in_file, pin_file, pin_file.abspath()
+    #print in_file, pin_file, pin_file.abspath()
     # todo: replace with template?
     cmd = cmd_info['cmd'].replace('INFILE', in_file).replace('OUTFILE', out_file.name)
     #print cmd
@@ -164,7 +164,7 @@ def parse_argv(argv):
 
     parser.add_option('--in-file-glob', dest='in_file_glob', default=None,
                       help='file we are trying to minify')
-    parser.add_option('--conf', dest='conf_file', 
+    parser.add_option('--conf', dest='conf_file',
                       default=None,
                       help='config file for minification programs')
     # todo: better as args?
@@ -178,8 +178,8 @@ def parse_argv(argv):
     # todo: these options!
     #parser.add_option('--verbose', dest='verbose', action='store_true'
     #                  default=True, help='be verbose')
-    #parser.add_option('--quiet', dest='verbose', action='store_false'
-    #                  default=True, help='do not be verbose')
+    parser.add_option('--quiet', dest='verbose', action='store_false',
+                      default=True, help='do not be verbose')
     #parser.add_option('--debug', dest='debug', action='store_false'
     #                  default=True, help='do not be verbose')
 
@@ -223,15 +223,18 @@ def main(argv):
     agg_stats_base = AggregateStats()
     agg_stats_challenger = AggregateStats()
     for file_name in glob.glob(in_file_glob):
-        print file_name
+        if opts.verbose:
+            print file_name
         (cmd_list, res_stats) = minify_file(cmds[opts.base_mini], file_name)
         agg_stats_base.ministats.append(res_stats)
-        print_text(cmd_list, res_stats)
-        print '--------------------'
+        if opts.verbose:
+            print_text(cmd_list, res_stats)
+            print '--------------------'
         (cmd_list, res_stats) = minify_file(cmds[opts.challenge_mini],
                                             file_name)
         agg_stats_challenger.ministats.append(res_stats)
-        print_text(cmd_list, res_stats)
+        if opts.verbose:
+            print_text(cmd_list, res_stats)
 
     print '----- TOTALS -----'
     print 'base: ', opts.base_mini
@@ -242,6 +245,23 @@ def main(argv):
     print ('abs diff:', str(agg_stats_challenger.abs_size_diff()), 'gz: ',
            str(agg_stats_challenger.abs_size_diff(gz=True)))
     print ('% change: ', agg_stats_challenger.change(), 'gz: ', agg_stats_challenger.change(gz=True))
+
+    # State the obvious.
+    if (agg_stats_base.abs_size_diff(gz=True) >
+        agg_stats_challenger.abs_size_diff(gz=True)):
+        gz_smaller = opts.base_mini
+    else:
+        gz_smaller = opts.challenge_mini
+    if (agg_stats_base.abs_size_diff(gz=False) >
+        agg_stats_challenger.abs_size_diff(gz=False)):
+        smaller = opts.base_mini
+    else:
+        smaller = opts.challenge_mini
+    print ("%s produces smaller gzip files by a total of %s bytes" %
+           (gz_smaller, str(abs(agg_stats_base.abs_size_diff(gz=True) -
+                                agg_stats_challenger.abs_size_diff(gz=True)))))
+    if gz_smaller != smaller:
+        print 'Note: gzip smaller and vanilla smaller different.'
 
 
 if __name__ == '__main__':
