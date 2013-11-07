@@ -75,7 +75,7 @@ corpus.  Suggestions for other idiomatic samples are welcome.
  - Homepage: http://jqueryui.com/
  - License: MIT and GPL licenses.
 
-#### MooTools
+##### MooTools
  - Homepage: http://mootools.net
  - License:  MIT-style license.
 
